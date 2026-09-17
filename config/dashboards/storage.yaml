@@ -1,0 +1,100 @@
+id: storage
+title: 存储与 GC
+icon: hard-drive
+order: 6
+description: 集群存储容量、仓库占用与 Artifacts GC
+
+panels:
+  - id: binary_artifacts_size
+    title: Artifacts & Binaries 存储大小（集群）
+    type: timeseries
+    scope: cluster
+    metrics:
+      - name: artifactory_binaries_size_bytes
+        label: Binary 存储大小
+      - name: artifactory_artifacts_size_bytes
+        label: Artifacts 大小
+    unit: bytes
+    span: 12
+    help: Binary 为去重后存储总体积；Artifacts 大小为 artifactsSize（非去重）。同图对照便于观察膨胀差异。
+
+  - id: artifacts_count
+    title: Artifacts & Binaries 数量（集群）
+    type: timeseries
+    scope: cluster
+    metrics:
+      - name: artifactory_artifacts_total
+        label: Artifacts
+      - name: artifactory_binaries_total
+        label: Binaries
+    unit: count
+    span: 6
+    help: Artifact / Binary 数量趋势。增长过快会增加 DB / 索引压力。
+
+  - id: filestore_space
+    title: FileStore 空间（集群）
+    type: timeseries
+    scope: cluster
+    metrics:
+      - name: artifactory_filestore_total_bytes
+        label: Total
+      - name: artifactory_filestore_used_bytes
+        label: Used
+    unit: bytes
+    span: 6
+    help: 底层文件存储总量 Total 与已用 Used（来自 storageinfo fileStoreSummary）。S3 等对象存储下 Total 可能极大或不可用。
+
+  - id: filestore_pct
+    title: FileStore 使用率（集群）
+    type: timeseries
+    scope: cluster
+    metrics:
+      - name: artifactory_filestore_used_pct
+        label: Used %
+    unit: percent
+    span: 6
+    help: FileStore 已用百分比。对象存储（S3）容量近乎无限时本图参考意义有限。
+
+  - id: gc_next
+    title: 距下次 GC（集群）
+    type: timeseries
+    scope: cluster
+    metrics:
+      - name: jfrt_artifacts_gc_next_run_seconds
+        label: Next GC (s)
+    unit: seconds
+    span: 6
+    help: 距离下一次 Artifacts GC 运行的剩余秒数。用于确认定时清理任务是否按预期调度。
+
+  - id: gc_binaries
+    title: GC 处理 Binary 数（集群）
+    type: timeseries
+    scope: cluster
+    metrics:
+      - name: jfrt_artifacts_gc_binaries_total
+        label: Binaries GC'd
+    unit: count
+    span: 6
+    help: GC 已处理的 Binary 数量累计/变化。可观察清理任务活跃度。
+
+  - id: gc_duration
+    title: GC 耗时（集群）
+    type: timeseries
+    scope: cluster
+    metrics:
+      - name: jfrt_artifacts_gc_duration_seconds
+        label: Duration
+    unit: seconds
+    span: 6
+    help: 最近一次 / 当前 Artifacts GC 耗时。耗时拉长可能影响系统负载。
+
+  - id: gc_cleaned
+    title: GC 清理体积（集群）
+    type: timeseries
+    scope: cluster
+    metrics:
+      - name: jfrt_artifacts_gc_size_cleaned_bytes
+        label: Cleaned
+    unit: bytes
+    span: 6
+    help: GC 清理释放的体积。与 Binary Size 下降对照，验证清理效果。

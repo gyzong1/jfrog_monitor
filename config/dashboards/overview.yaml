@@ -1,0 +1,238 @@
+id: overview
+title: 总览
+icon: layout-dashboard
+order: 1
+description: 集群资源一览 + 各节点健康与性能（可按节点筛选）
+
+panels:
+  - id: health
+    title: 节点健康 / 版本
+    type: node_status
+    metric: artifactory_up
+    version_metric: artifactory_version_info
+    scope: node
+    unit: bool
+    span: 4
+    help: 通过 /api/system/ping 探测各节点是否可达，并展示该节点 Artifactory 版本与 revision。
+
+  - id: license_days
+    title: License 剩余天数
+    type: gauge
+    metric: artifactory_license_days_left
+    scope: cluster
+    unit: count
+    span: 2
+    threshold: license_days_left
+    help: 集群 License 距过期剩余天数。低于告警阈值时颜色会变化，需及时续期。
+
+  - id: host_kpi
+    title: 节点资源快照
+    type: kpi_row
+    scope: node
+    span: 6
+    help: 各节点当前 CPU / 内存 / 本地磁盘 / JVM Heap 使用率快照（瞬时值）。磁盘与 Heap 来自 Agent 与 Metrics API。
+    items:
+      - metric: node_cpu_usage_pct
+        label: CPU
+        unit: percent
+      - metric: node_memory_usage_pct
+        label: 内存
+        unit: percent
+      - metric: node_disk_usage_pct
+        label: 磁盘
+        unit: percent
+        threshold: disk_usage_pct
+      - metric: jfrt_runtime_heap_usage_pct
+        label: Heap
+        unit: percent
+        threshold: heap_usage_pct
+
+  - id: health_trend
+    title: 节点在线趋势
+    type: health_timeline
+    scope: node
+    metrics:
+      - name: artifactory_up
+        label: Up
+    unit: bool
+    span: 12
+    help: 各节点历史在线状态（artifactory_up）。绿=在线，红=离线。可用右上角时间范围回看。
+
+  - id: inventory
+    title: 集群资源库存
+    type: stat_row
+    scope: cluster
+    span: 6
+    help: 集群级 Artifact / 仓库 / Project 数量，以及 Binary 存储总体积（来自 Storage Summary API）。
+    stats:
+      - metric: artifactory_artifacts_total
+        label: Artifacts
+        unit: count
+      - metric: artifactory_repositories_total
+        label: Repositories
+        unit: count
+      - metric: artifactory_projects_total
+        label: Projects
+        unit: count
+      - metric: artifactory_binaries_size_bytes
+        label: Binary Size
+        unit: bytes
+
+  - id: access_stats
+    title: Access 统计（集群）
+    type: stat_row
+    scope: cluster
+    span: 6
+    help: 用户、组、权限目标与 Access Token 数量。来自 Access / Security API。
+    stats:
+      - metric: artifactory_users_total
+        label: Users
+        unit: count
+      - metric: artifactory_groups_total
+        label: Groups
+        unit: count
+      - metric: artifactory_permissions_total
+        label: Permissions
+        unit: count
+      - metric: artifactory_tokens_total
+        label: Tokens 数量
+        unit: count
+
+  - id: cpu_usage
+    title: CPU 使用率（按节点）
+    type: timeseries
+    scope: node
+    metrics:
+      - name: node_cpu_usage_pct
+        label: CPU %
+    unit: percent
+    span: 6
+    help: 主机 CPU 使用率趋势（%）。由节点 Agent 采集；持续偏高可能导致请求变慢。
+
+  - id: memory_usage
+    title: 内存使用率（按节点）
+    type: timeseries
+    scope: node
+    metrics:
+      - name: node_memory_usage_pct
+        label: Memory %
+    unit: percent
+    span: 6
+    help: 主机内存使用率趋势（%）。接近 100% 时系统可能开始换页，影响 Artifactory 性能。
+
+  - id: disk_trend
+    title: 本地磁盘使用率（按节点）
+    type: timeseries
+    scope: node
+    metrics:
+      - name: node_disk_usage_pct
+        label: Disk %
+    unit: percent
+    span: 6
+    threshold: disk_usage_pct
+    help: 节点本地磁盘占用率（默认监控根分区）。与 Artifactory filestore 空间不同，用于主机磁盘告警。
+
+  - id: network_bandwidth
+    title: 网络带宽（按节点）
+    type: timeseries
+    scope: node
+    metrics:
+      - name: node_network_receive_bytes_rate
+        label: Receive
+      - name: node_network_transmit_bytes_rate
+        label: Transmit
+    unit: bytes/s
+    span: 6
+    help: 网卡收发速率（B/s）。可观察上传/下载高峰与网络瓶颈。
+
+  - id: heap
+    title: Heap 使用率（按节点）
+    type: timeseries
+    scope: node
+    metrics:
+      - name: jfrt_runtime_heap_usage_pct
+        label: Heap %
+    unit: percent
+    span: 6
+    threshold: heap_usage_pct
+    help: JVM Heap 使用率（已用/上限）。长期偏高易触发频繁 GC，影响响应延迟。
+
+  - id: ping
+    title: Ping 延迟（按节点）
+    type: timeseries
+    scope: node
+    metrics:
+      - name: artifactory_ping_latency_ms
+        label: Latency
+    unit: ms
+    span: 6
+    help: 监控端调用 /api/system/ping 的往返耗时（毫秒）。升高通常表示节点负载高或网络抖动。
+
+  - id: artifacts_trend
+    title: Artifacts 数量趋势（集群）
+    type: timeseries
+    scope: cluster
+    metrics:
+      - name: artifactory_artifacts_total
+        label: Artifacts
+    unit: count
+    span: 6
+    help: 集群 Artifact 总数随时间变化。快速增长可能带来存储与索引压力。
+
+  - id: repo_size_trend
+    title: Binary / Artifact 体积（集群）
+    type: timeseries
+    scope: cluster
+    metrics:
+      - name: artifactory_binaries_size_bytes
+        label: Binary 存储大小
+      - name: artifactory_artifacts_size_bytes
+        label: Artifacts 大小
+    unit: bytes
+    span: 6
+    help: Binary 与 Artifacts 大小趋势对照。Binary 反映去重后实际存储占用。
+
+  - id: repo_top10
+    title: 仓库 Artifacts Size Top 10（集群）
+    type: table
+    metric: artifactory_repo_size_top
+    scope: cluster
+    group_by: repo
+    value_label: Size
+    unit: bytes
+    span: 6
+    help: 按体积排序的前 10 个仓库，便于定位占用大户与清理对象。
+
+  - id: repo_top_bar
+    title: 仓库 Size Top 10
+    type: bar
+    metric: artifactory_repo_size_top
+    scope: cluster
+    group_by: repo
+    unit: bytes
+    span: 6
+    help: Top 10 仓库体积柱状对比，与左侧表格同一数据源。
+
+  - id: requests_qps
+    title: 请求 QPS（按节点）
+    type: timeseries
+    scope: node
+    metrics:
+      - name: artifactory_http_requests_rate
+        label: QPS
+    unit: req/s
+    span: 6
+    help: 基于 request.log 估算的每秒请求数。需在节点部署 Agent 并开启 requests 采集。
+
+  - id: traffic
+    title: 上下行流量（按节点）
+    type: timeseries
+    scope: node
+    metrics:
+      - name: artifactory_upload_bytes_rate
+        label: Upload
+      - name: artifactory_download_bytes_rate
+        label: Download
+    unit: bytes/s
+    span: 6
+    help: 上传 / 下载字节速率。来自 request.log，反映制品吞吐。

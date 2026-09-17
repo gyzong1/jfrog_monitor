@@ -1,0 +1,21 @@
+# 本地运行态 / 密钥
+.env
+*.log
+.DS_Store
+run/
+agent/run/
+
+# 构建产物（由 build-release.sh 生成，勿提交）
+VERSION
+EDITION
+agent/VERSION
+agent/bin/jf-agent-*
+images/*.tar.gz
+dist/
+
+# 运行时数据
+data/*.db
+data/*.db-*
+
+# 自定义 Dashboard（模板库保留，自定义不入库）
+config/dashboards/custom-*.yaml

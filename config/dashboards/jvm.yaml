@@ -1,0 +1,53 @@
+id: jvm
+title: JVM
+icon: cpu
+order: 5
+description: 各节点 Heap；GC 为集群任务
+
+panels:
+  - id: heap_usage
+    title: Heap 使用率（按节点）
+    type: timeseries
+    scope: node
+    metrics:
+      - name: jfrt_runtime_heap_usage_pct
+        label: Usage %
+    unit: percent
+    span: 6
+    threshold: heap_usage_pct
+    help: JVM Heap 使用百分比。持续高位需关注 GC 频率与 -Xmx 配置是否合理。
+
+  - id: heap_bytes
+    title: Heap Used（按节点）
+    type: timeseries
+    scope: node
+    metrics:
+      - name: jfrt_runtime_heap_used_bytes
+        label: Used
+    unit: bytes
+    span: 6
+    help: 当前已用 Heap 字节数（maxmemory − freememory）。与使用率图互补，便于看绝对占用。
+
+  - id: gc_duration
+    title: Artifacts GC 耗时（集群）
+    type: timeseries
+    scope: cluster
+    metrics:
+      - name: jfrt_artifacts_gc_duration_seconds
+        label: GC Duration
+    unit: seconds
+    span: 6
+    help: Artifacts 垃圾回收任务耗时（秒）。耗时变长可能影响存储清理节奏与 IO。
+
+  - id: gc_cleaned
+    title: GC 清理量（集群）
+    type: timeseries
+    scope: cluster
+    metrics:
+      - name: jfrt_artifacts_gc_size_cleaned_bytes
+        label: Cleaned
+      - name: jfrt_artifacts_gc_current_size_bytes
+        label: Current Size
+    unit: bytes
+    span: 6
+    help: GC 清理的数据量与当前相关体积。可判断清理是否有效、存储是否持续回落。

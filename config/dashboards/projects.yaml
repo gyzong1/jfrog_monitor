@@ -1,0 +1,75 @@
+id: projects
+title: Projects
+icon: folders
+order: 8
+description: Project 存储配额与用量（对齐 project-storage-monitor）
+
+panels:
+  - id: projects_used_total
+    title: Projects 已用总量（集群）
+    type: timeseries
+    scope: cluster
+    metrics:
+      - name: artifactory_projects_used_bytes_total
+        label: Used
+    unit: bytes
+    span: 6
+    help: 所有 Project 下仓库 usedSpace 合计。与 Binary Size 不同，此处按 Project 归属汇总（含跨仓库重复引用前的 Artifacts 视角）。
+
+  - id: projects_quota_total
+    title: Projects 配额总量（有限制）
+    type: timeseries
+    scope: cluster
+    metrics:
+      - name: artifactory_projects_quota_bytes_total
+        label: Quota
+    unit: bytes
+    span: 6
+    help: 所有设置了 storage_quota_bytes 的 Project 配额之和（无限制 Project 不计入）。
+
+  - id: project_used_top
+    title: Project 用量 Top 10
+    type: share_table
+    scope: cluster
+    metric: artifactory_project_used_top
+    group_by: project
+    name_label: Project
+    value_label: Used
+    unit: bytes
+    span: 6
+    help: 按已用空间排序的前 10 个 Project（来自 storageinfo 按 projectKey 汇总）。
+
+  - id: project_quota_pct_top
+    title: Project 配额使用率 Top
+    type: table
+    scope: cluster
+    metric: artifactory_project_quota_used_pct
+    group_by: project
+    value_label: 使用率
+    unit: percent
+    span: 6
+    threshold: project_quota_used_pct
+    help: 各有配额 Project 的 used/quota%。仅展示设置了配额的 Project；>80% 警告、>90% 危险。
+
+  - id: project_repos
+    title: Project 仓库数
+    type: share_table
+    scope: cluster
+    metric: artifactory_project_repos_total
+    group_by: project
+    name_label: Project
+    value_label: Repos
+    unit: count
+    span: 6
+    help: 各 Project 下挂载的仓库数量（storageinfo 中带 projectKey 的仓库）。
+
+  - id: project_used_trend
+    title: Project 用量趋势（Top 按瞬时）
+    type: timeseries
+    scope: cluster
+    metrics:
+      - name: artifactory_project_used_bytes
+        label: Used
+    unit: bytes
+    span: 6
+    help: 按瞬时用量取 Top 12 Project 的已用空间历史；图例显示 Project 名称。

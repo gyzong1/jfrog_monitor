@@ -1,0 +1,169 @@
+id: system
+title: System
+icon: server
+order: 2
+description: 主机资源 — CPU / 内存 / 磁盘 / 网络 / 磁盘 IO（需节点 Agent）
+
+panels:
+  - id: host_kpi
+    title: 资源快照
+    type: kpi_row
+    scope: node
+    span: 12
+    help: 各节点当前 CPU、内存、磁盘占用与 1 分钟 Load。数据来自节点 Agent（system 采集）。
+    items:
+      - metric: node_cpu_usage_pct
+        label: CPU
+        unit: percent
+        threshold: cpu_usage_pct
+      - metric: node_memory_usage_pct
+        label: 内存
+        unit: percent
+        threshold: memory_usage_pct
+      - metric: node_disk_usage_pct
+        label: 磁盘
+        unit: percent
+        threshold: disk_usage_pct
+      - metric: node_load1
+        label: Load1
+        unit: count
+
+  - id: cpu_usage
+    title: CPU 使用率（按节点）
+    type: timeseries
+    scope: node
+    metrics:
+      - name: node_cpu_usage_pct
+        label: CPU %
+    unit: percent
+    span: 6
+    threshold: cpu_usage_pct
+    help: 主机 CPU 使用率（%）。由 Agent 根据 /proc/stat 差分计算；持续偏高可能导致请求变慢。
+
+  - id: cpu_iowait
+    title: CPU iowait（按节点）
+    type: timeseries
+    scope: node
+    metrics:
+      - name: node_cpu_iowait_pct
+        label: iowait %
+    unit: percent
+    span: 6
+    help: CPU 等待磁盘 IO 的时间占比。长期偏高通常说明磁盘或存储后端成为瓶颈。
+
+  - id: loadavg
+    title: Load Average（按节点）
+    type: timeseries
+    scope: node
+    metrics:
+      - name: node_load1
+        label: Load 1m
+      - name: node_load5
+        label: Load 5m
+      - name: node_load15
+        label: Load 15m
+    unit: count
+    span: 6
+    help: 1/5/15 分钟平均负载。需结合 CPU 核数解读；持续高于核数表示排队严重。
+
+  - id: memory_pct
+    title: 内存使用率（按节点）
+    type: timeseries
+    scope: node
+    metrics:
+      - name: node_memory_usage_pct
+        label: Memory %
+    unit: percent
+    span: 6
+    threshold: memory_usage_pct
+    help: 主机内存使用率（used = total − available）。接近 100% 时可能触发换页，影响 Artifactory 性能。
+
+  - id: memory_bytes
+    title: 内存用量（按节点）
+    type: timeseries
+    scope: node
+    metrics:
+      - name: node_memory_used_bytes
+        label: Used
+      - name: node_memory_available_bytes
+        label: Available
+    unit: bytes
+    span: 6
+    help: 已用与可用内存绝对值。Available 含可回收 cache/buffer，比 Free 更能反映真实压力。
+
+  - id: swap_usage
+    title: Swap 使用率（按节点）
+    type: timeseries
+    scope: node
+    metrics:
+      - name: node_memory_swap_usage_pct
+        label: Swap %
+    unit: percent
+    span: 6
+    help: Swap 占用率。持续增长通常意味着物理内存不足，应优先扩容或排查泄漏。
+
+  - id: disk_pct
+    title: 磁盘使用率（按节点）
+    type: timeseries
+    scope: node
+    metrics:
+      - name: node_disk_usage_pct
+        label: Disk %
+    unit: percent
+    span: 6
+    threshold: disk_usage_pct
+    help: 本地磁盘占用率（默认监控 Agent 配置的 disk_path，通常为 /）。与 Artifactory filestore 空间不同。
+
+  - id: disk_bytes
+    title: 磁盘容量（按节点）
+    type: timeseries
+    scope: node
+    metrics:
+      - name: node_disk_used_bytes
+        label: Used
+      - name: node_disk_avail_bytes
+        label: Available
+      - name: node_disk_total_bytes
+        label: Total
+    unit: bytes
+    span: 6
+    help: 本地磁盘 used / avail / total。用于容量规划与磁盘告警。
+
+  - id: network_bandwidth
+    title: 网络带宽（按节点）
+    type: timeseries
+    scope: node
+    metrics:
+      - name: node_network_receive_bytes_rate
+        label: Receive
+      - name: node_network_transmit_bytes_rate
+        label: Transmit
+    unit: bytes/s
+    span: 6
+    help: 网卡收发速率（B/s，汇总非 lo 接口或配置的 network_interfaces）。
+
+  - id: disk_io_bytes
+    title: 磁盘 IO 吞吐（按节点）
+    type: timeseries
+    scope: node
+    metrics:
+      - name: node_disk_read_bytes_rate
+        label: Read
+      - name: node_disk_write_bytes_rate
+        label: Write
+    unit: bytes/s
+    span: 6
+    help: 物理磁盘读写吞吐（B/s）。来自 /proc/diskstats；需升级节点 Agent。无数据时请确认 Agent 版本与 Linux 环境。
+
+  - id: disk_io_iops
+    title: 磁盘 IOPS（按节点）
+    type: timeseries
+    scope: node
+    metrics:
+      - name: node_disk_reads_completed_rate
+        label: Read IOPS
+      - name: node_disk_writes_completed_rate
+        label: Write IOPS
+    unit: ops/s
+    span: 6
+    help: 物理磁盘每秒完成的读写次数。高 IOPS 伴随高 iowait 时优先排查存储与 GC/备份任务。

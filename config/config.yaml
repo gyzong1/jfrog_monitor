@@ -1,0 +1,65 @@
+server:
+  host: 0.0.0.0
+  port: 8080
+  scrape_interval: 15
+  ui_refresh_interval: 15
+  retention_days: 30
+
+# Preferred shape. Legacy flat `nodes: []` still works (wrapped as cluster "default").
+clusters: []
+
+collectors:
+  artifactory_metrics:
+    enabled: true
+    path: /artifactory/api/v1/metrics
+  health_probe:
+    enabled: true
+    path: /artifactory/api/system/ping
+    timeout_seconds: 5
+  api_summary:
+    enabled: true
+    scrape_interval: 60
+  prometheus_targets:
+    enabled: true
+    scrape_interval: 15
+    targets: []
+  remote_agents:
+    enabled: true
+    scrape_interval: 15
+    endpoints: []
+  api_intervals:
+    health_ping: 15
+    health_version: 3600
+    artifactory_metrics: 15
+    rtfs_metrics: 15
+    license: 86400
+    storageinfo: 3600
+    storage_aql_monthly: 86400
+    users: 600
+    groups: 600
+    permissions: 600
+    tokens: 600
+    projects: 300
+    xray: 86400
+    remote_agents: 15
+    prometheus_targets: 15
+    access_metrics: 15
+  demo:
+    enabled: false
+
+ui:
+  theme: dark
+
+thresholds:
+  heap_usage_pct:
+    warning: 75
+    critical: 90
+  disk_usage_pct:
+    warning: 80
+    critical: 90
+  cpu_usage_pct:
+    warning: 80
+    critical: 95
+  license_days_left:
+    warning: 30
+    critical: 7

@@ -1,0 +1,151 @@
+id: access
+title: Access
+icon: users
+order: 7
+description: Access 用户 / 组 / 权限 / Token 增长趋势与 Access 服务健康
+
+panels:
+  - id: access_inventory
+    title: Access 库存（集群）
+    type: stat_row
+    scope: cluster
+    span: 12
+    help: 当前 Users / Groups / Permissions / Tokens / Projects 数量快照，来自 Access / Security REST API。
+    stats:
+      - metric: artifactory_users_total
+        label: Users
+        unit: count
+      - metric: artifactory_groups_total
+        label: Groups
+        unit: count
+      - metric: artifactory_permissions_total
+        label: Permissions
+        unit: count
+      - metric: artifactory_tokens_total
+        label: Tokens
+        unit: count
+      - metric: artifactory_projects_total
+        label: Projects
+        unit: count
+
+  - id: access_counts_trend
+    title: Access 实体数量趋势（集群）
+    type: timeseries
+    scope: cluster
+    metrics:
+      - name: artifactory_users_total
+        label: Users
+      - name: artifactory_groups_total
+        label: Groups
+      - name: artifactory_permissions_total
+        label: Permissions
+      - name: artifactory_tokens_total
+        label: Tokens
+    unit: count
+    span: 12
+    help: 四类 Access 实体数量同图对照，便于观察整体增长节奏。可用右上角时间范围回看历史。
+
+  - id: users_trend
+    title: Users 数量趋势
+    type: timeseries
+    scope: cluster
+    metrics:
+      - name: artifactory_users_total
+        label: Users
+    unit: count
+    span: 6
+    help: Access 用户总数历史。突增可能对应批量导入、LDAP 同步或自动化建号。
+
+  - id: groups_trend
+    title: Groups 数量趋势
+    type: timeseries
+    scope: cluster
+    metrics:
+      - name: artifactory_groups_total
+        label: Groups
+    unit: count
+    span: 6
+    help: Access 组总数历史。组是权限绑定的常用载体，增长过快时建议复盘命名与归属。
+
+  - id: permissions_trend
+    title: Permissions 数量趋势
+    type: timeseries
+    scope: cluster
+    metrics:
+      - name: artifactory_permissions_total
+        label: Permissions
+    unit: count
+    span: 6
+    help: 权限目标（Permission Target）数量历史。碎片化权限过多会增加审计与排障成本。
+
+  - id: tokens_trend
+    title: Tokens 数量趋势
+    type: timeseries
+    scope: cluster
+    metrics:
+      - name: artifactory_tokens_total
+        label: Tokens
+    unit: count
+    span: 6
+    help: Access Token 数量历史。长期只增不减时建议清理过期 / 闲置 Token，降低泄露面。
+
+  - id: projects_trend
+    title: Projects 数量趋势
+    type: timeseries
+    scope: cluster
+    metrics:
+      - name: artifactory_projects_total
+        label: Projects
+    unit: count
+    span: 6
+    help: Project 数量由 Access 管理。细粒度配额与用量见「Projects」看板。
+
+  - id: access_auth_count
+    title: Access 认证次数（累计）
+    type: timeseries
+    scope: node
+    metrics:
+      - name: jfac_authentication_count
+        label: Auth Count
+    unit: count
+    span: 6
+    optional: true
+    help: Access 服务认证累计次数（jfac_authentication_count，来自 /access/api/v1/metrics）。曲线斜率升高表示认证更频繁。需开启 Access Open Metrics。
+
+  - id: access_heap
+    title: Access Heap 使用率
+    type: timeseries
+    scope: node
+    metrics:
+      - name: jfac_runtime_heap_usage_pct
+        label: Heap %
+    unit: percent
+    span: 6
+    optional: true
+    help: Access JVM Heap 使用率（由 freememory / maxmemory 派生）。持续偏高可能影响登录与 Token 签发延迟。
+
+  - id: access_db
+    title: Access DB 连接使用率
+    type: timeseries
+    scope: node
+    metrics:
+      - name: jfac_db_connections_usage_pct
+        label: DB Pool %
+    unit: percent
+    span: 6
+    optional: true
+    help: Access 数据库连接池占用率（active / max_pool）。接近上限时登录与鉴权可能排队。
+
+  - id: access_grpc
+    title: Access gRPC 任务
+    type: timeseries
+    scope: node
+    metrics:
+      - name: jfac_grpc_thread_running_tasks_total
+        label: Running
+      - name: jfac_grpc_thread_pending_tasks_total
+        label: Pending
+    unit: count
+    span: 6
+    optional: true
+    help: Access gRPC 运行中 / 排队任务数。Pending 持续堆积通常反映 Access 负载或下游抖动。

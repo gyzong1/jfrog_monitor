@@ -1,0 +1,133 @@
+id: federation
+title: Federation
+icon: git-branch
+order: 9
+description: Federated repository sync lag、成员健康与 Full Sync（jfrtfs_*）
+
+panels:
+  - id: fed_kpi
+    title: Federation 快照
+    type: kpi_row
+    scope: node
+    span: 12
+    help: Worker lag、ERROR 成员、禁用成员、HTTP 连接池可用百分比的瞬时值。Lag 告警参考阈值 5 分钟（300000ms）。
+    items:
+      - metric: jfrtfs_worker_lag
+        label: Worker Lag
+        unit: ms
+        threshold: federation_worker_lag_ms
+      - metric: jfrtfs_members_in_error
+        label: ERROR Members
+        unit: count
+        threshold: federation_error_members
+      - metric: jfrtfs_disabled_members
+        label: Disabled
+        unit: count
+        threshold: federation_disabled_members
+      - metric: jfrtfs_http_client_connections_available
+        label: HTTP Pool %
+        unit: percent
+        threshold: federation_http_pool_pct
+
+  - id: worker_lag
+    title: Worker Lag（按节点）
+    type: timeseries
+    scope: node
+    metrics:
+      - name: jfrtfs_worker_lag
+        label: Lag
+    unit: ms
+    span: 6
+    threshold: federation_worker_lag_ms
+    help: 最旧未处理事件到完成处理的最大延迟（毫秒）。参考告警：jfrtfs_worker_lag > 300000（5 分钟）。
+
+  - id: http_pool
+    title: HTTP Client 连接池 Available / Leased（按节点）
+    type: timeseries
+    scope: node
+    metrics:
+      - name: jfrtfs_http_client_connections_available
+        label: Available %
+      - name: jfrtfs_http_client_connections_leased
+        label: Leased %
+    unit: percent
+    span: 6
+    threshold: federation_http_pool_pct
+    help: RTFS HTTP 客户端连接池可用 / 已租用百分比。Available 低于 20% 时可能影响跨成员同步吞吐。
+
+  - id: http_pool_pending
+    title: HTTP Client Pending（按节点）
+    type: timeseries
+    scope: node
+    metrics:
+      - name: jfrtfs_http_client_connections_pending
+        label: Pending
+    unit: count
+    span: 6
+    help: 等待获取 HTTP 连接的请求数。持续升高通常伴随 Available 下降，提示连接池压力。
+
+  - id: members_status
+    title: Members by Status
+    type: bar
+    scope: node
+    metric: jfrtfs_members_in_status
+    group_by: member_status
+    unit: count
+    span: 6
+    help: 各 member_status 下的成员数量。ERROR_*（ERROR_GENERIC / ERROR_OUT_OF_SYNC / ERROR_INACTIVE）需优先排查。
+
+  - id: members_error
+    title: ERROR 成员数（按节点）
+    type: timeseries
+    scope: node
+    metrics:
+      - name: jfrtfs_members_in_error
+        label: ERROR
+    unit: count
+    span: 6
+    threshold: federation_error_members
+    help: member_status 以 ERROR 开头的成员合计（等价于 PromQL member_status=~"ERROR.*"）。
+
+  - id: disabled_members
+    title: Disabled Members（按节点）
+    type: timeseries
+    scope: node
+    metrics:
+      - name: jfrtfs_disabled_members
+        label: Disabled
+    unit: count
+    span: 6
+    threshold: federation_disabled_members
+    help: 已禁用的 Federation 成员数（按 tenant）。非零通常表示人为停用或故障后隔离。
+
+  - id: full_sync_failure
+    title: Full Sync Failures（累计）
+    type: timeseries
+    scope: node
+    metrics:
+      - name: jfrtfs_full_sync_failure
+        label: Failures
+    unit: count
+    span: 6
+    help: Full Sync 失败计数器。曲线斜率近似 rate(jfrtfs_full_sync_failure[1h])；持续上升表示同步反复失败。
+
+  - id: full_sync_failure_by_error
+    title: Full Sync Failures by Error
+    type: bar
+    scope: node
+    metric: jfrtfs_full_sync_failure
+    group_by: error
+    unit: count
+    span: 6
+    help: 按 error 标签拆分的 Full Sync 失败累计次数，便于定位失败阶段或错误类型。
+
+  - id: worker_repo_lag
+    title: Top Repo Lag
+    type: table
+    scope: node
+    metric: jfrtfs_worker_repo_lag
+    group_by: source_and_remote_repo_keys
+    unit: ms
+    span: 12
+    optional: true
+    help: 滞后最严重的仓库对（source__remote）。若无数据，可能尚未启用 RTFS 或当前无超阈值滞后仓库。

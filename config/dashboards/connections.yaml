@@ -1,0 +1,59 @@
+id: connections
+title: 连接与线程
+icon: network
+order: 3
+description: 各节点 Tomcat / DB / TCP / S3（节点级）
+
+panels:
+  - id: tomcat_threads
+    title: Tomcat 线程（按节点）
+    type: timeseries
+    scope: node
+    metrics:
+      - name: tomcat_threads_current_threads
+        label: Current
+      - name: tomcat_threads_config_max_threads
+        label: Max
+    unit: count
+    span: 6
+    help: Artifactory HTTP 连接器 http-nio-8081 的当前线程数与最大线程数。Current 接近 Max 表示线程池可能打满。
+
+  - id: db_connections
+    title: DB 连接（按节点）
+    type: timeseries
+    scope: node
+    metrics:
+      - name: jfrt_db_connections_active_total
+        label: Active
+      - name: jfrt_db_connections_max_active_total
+        label: Max
+    unit: count
+    span: 6
+    help: 数据库连接池活跃连接与上限。Active 长期接近 Max 可能导致请求排队或超时。
+
+  - id: tcp_established
+    title: TCP ESTABLISHED :8081（按节点）
+    type: timeseries
+    scope: node
+    metrics:
+      - name: tcp_port_established
+        label: "8081"
+        labels: { port: "8081" }
+    unit: count
+    span: 6
+    optional: true
+    hint: 需在节点部署 Agent
+    help: 节点 8081 端口 ESTABLISHED TCP 连接数。异常飙升可能与客户端堆积或连接泄漏有关。
+
+  - id: s3_pool
+    title: S3 连接池（按节点）
+    type: timeseries
+    scope: node
+    metrics:
+      - name: s3_connection_current
+        label: Current
+    unit: count
+    span: 6
+    optional: true
+    hint: 需在节点部署 Agent
+    help: S3/对象存储连接池当前占用（解析 connectionpool 日志）。接近上限时上传下载可能变慢。

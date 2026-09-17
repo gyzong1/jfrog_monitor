@@ -1,0 +1,50 @@
+id: xray
+title: Xray
+icon: shield
+order: 10
+description: Xray 安全总览 — 漏洞 / 违规 / 恶意包 / EOL，支持按周、月、年导出报告
+
+panels:
+  - id: xray_vulns_trend
+    title: 漏洞数量趋势（唯一 Issue）
+    type: timeseries
+    scope: cluster
+    metrics:
+      - name: xray_vulns_total
+        label: Vulns
+    unit: count
+    span: 6
+    help: 按严重级别统计的唯一 Security Issue（CVE / XRAY ID）。High 与 Critical 分开序列。节点筛选对此集群指标无效。
+
+  - id: xray_violations_trend
+    title: 违规数量趋势（按类型）
+    type: timeseries
+    scope: cluster
+    metrics:
+      - name: xray_violations_total
+        label: Violations
+    unit: count
+    span: 6
+    help: Watch 策略触发的违规条数，按 Security / License / Operational Risk / Malicious 等类型展开。
+
+  - id: xray_malicious_trend
+    title: 恶意包数量趋势
+    type: timeseries
+    scope: cluster
+    metrics:
+      - name: xray_malicious_total
+        label: Malicious
+    unit: count
+    span: 6
+    help: 识别为 Malicious Package 的唯一组件 / Issue 数量。
+
+  - id: xray_eol_trend
+    title: EOL 制品数量趋势
+    type: timeseries
+    scope: cluster
+    metrics:
+      - name: xray_eol_artifacts_total
+        label: EOL Artifacts
+    unit: count
+    span: 6
+    help: 运营风险中判定为 End-of-Life 的唯一制品数量。

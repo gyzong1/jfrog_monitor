@@ -1,0 +1,76 @@
+id: requests
+title: 请求分析
+icon: activity
+order: 4
+description: 节点级请求 / 流量 / 缓存命中率（来自 Agent）；含独立时间区间的数据传输与缓存命中统计
+
+panels:
+  - id: cache_hit_ratio
+    title: 缓存命中率（按节点）
+    type: timeseries
+    scope: node
+    metrics:
+      - name: artifactory_cache_hit_ratio_pct
+        label: Hit Ratio %
+    unit: percent
+    span: 12
+    optional: true
+    help: Agent 解析 artifactory-access.log 滑动窗口命中率。命中=*-cache 仓库的 ACCEPTED DOWNLOAD；未命中=remote 命名仓库的非 cache 下载。
+
+  - id: cache_hit_miss_window
+    title: 窗口内命中 / 未命中次数（按节点）
+    type: timeseries
+    scope: node
+    metrics:
+      - name: artifactory_cache_hit_count_window
+        label: Hits
+      - name: artifactory_cache_miss_count_window
+        label: Misses
+    unit: count
+    span: 12
+    optional: true
+    help: 最近 window_seconds（默认 60s）内的命中与未命中次数。
+
+  - id: qps
+    title: 实时 QPS（按节点）
+    type: timeseries
+    scope: node
+    metrics:
+      - name: artifactory_http_requests_rate
+        label: QPS
+    unit: count
+    span: 12
+    help: 滑动窗口估算的 HTTP 请求速率。用于观察业务高峰与异常流量突增。
+
+  - id: status_codes
+    title: HTTP 状态码（按节点）
+    type: pie
+    scope: node
+    metric: artifactory_status_codes_total
+    group_by: code
+    unit: count
+    span: 6
+    optional: true
+    help: 各 HTTP 状态码累计次数占比。4xx/5xx 升高通常表示客户端错误、鉴权失败或服务端异常。
+
+  - id: upload
+    title: 上传流量（按节点）
+    type: timeseries
+    scope: node
+    metrics:
+      - name: artifactory_upload_bytes_rate
+        label: Upload Rate
+    unit: bytes/s
+    span: 6
+    help: 制品上传字节速率。高峰时段可对照磁盘 / 网络带宽是否成为瓶颈。
+
+  - id: download
+    title: 下载流量（按节点）
+    type: timeseries
+    scope: node
+    metrics:
+      - name: artifactory_download_bytes_rate
+        label: Download Rate
+    unit: bytes/s
+    span: 6
+    help: 制品下载字节速率。CI 并发拉取时常见突增，可用于容量规划。

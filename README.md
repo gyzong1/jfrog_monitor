@@ -5,7 +5,7 @@ JFrog Artifactory 性能与安全监控（Server Docker + 可选 Node Agent）�
 本文说明**安装、配置与升级**。下文命令均在**安装目录**（解压后的包根目录）执行。  
 支持 **linux/amd64** 与 **linux/arm64**。
 
-安装包通常为：
+安装包示例：
 
 ```text
 jf-monitor-2.2.5-release.tar.gz    # 含 Server 镜像、Agent 二进制、脚本与配置
@@ -29,21 +29,15 @@ jf-monitor-2.2.5-release.tar.gz    # 含 Server 镜像、Agent 二进制、脚�
 
 ## 前置条件
 
-
 | 组件     | 要求                                                   |
 | ------ | ---------------------------------------------------- |
 | Server | Docker 20.10+、docker compose v2+                     |
 | Agent  | Linux（amd64 或 arm64），Artifactory 日志目录访问权限            |
 | 网络     | Server 能访问各 Artifactory 节点；Agent 端口 9105 对 Server 可达 |
 
-
 ---
 
-
-
 ## 一、首次部署 Server
-
-
 
 ### 1. 解压安装包
 
@@ -60,8 +54,6 @@ cd jf-monitor
 ```
 
 > 将 `2.2.5` 替换为实际版本号。查看包内版本：`cat VERSION`
-
-
 
 ### 2. 启动服务
 
@@ -81,16 +73,12 @@ docker compose pull
 ./start.sh
 ```
 
-
-
 ### 3. 打开 Web 界面
 
 ```bash
 # 浏览器访问（将 <server-ip> 换为实际 IP）
 http://<server-ip>:8080
 ```
-
-
 
 ### 4. 停止 / 查看版本
 
@@ -100,8 +88,6 @@ http://<server-ip>:8080
 ```
 
 ---
-
-
 
 ## 二、配置 Artifactory（启动后在 UI 完成）
 
@@ -114,16 +100,12 @@ http://<server-ip>:8080
 
 ---
 
-
-
 ## 三、部署 Node Agent（可选）
 
 在每个 Artifactory 节点上，使用安装包中的 `agent/` 目录（或单独拷贝该目录）。  
 部署 Agent 前，请先完成下方 **Artifactory 侧前置配置**，再启动 Agent。
 
 ### 1. Artifactory 侧前置配置
-
-
 
 #### （1）开启 metrics
 
@@ -218,8 +200,6 @@ s3:
 ./stop.sh           # 停止
 ```
 
-
-
 ### 4. 在 Server 侧关联 Agent
 
 在 Server **设置 → Artifactory 集群** 中，为对应节点填写：
@@ -228,16 +208,12 @@ s3:
 agent_url: http://<node-ip>:9105
 ```
 
-
-
 ### Agent 说明
-
 
 | 文件                         | 适用架构    |
 | -------------------------- | ------- |
 | `bin/jf-agent-linux-amd64` | x86_64  |
 | `bin/jf-agent-linux-arm64` | aarch64 |
-
 
 健康检查：
 
@@ -247,8 +223,6 @@ curl -s http://127.0.0.1:9105/metrics | head
 ```
 
 ---
-
-
 
 ## 四、版本升级
 
@@ -274,8 +248,6 @@ export JF_MONITOR_IMAGE=your-registry/jf-monitor:2.2.5
 ./update-server.sh
 ```
 
-
-
 ### 2. 升级 Agent（各 Artifactory 节点）
 
 ```bash
@@ -283,10 +255,7 @@ cd /opt/jf-monitor/agent
 ./update.sh --from /tmp/jf-monitor-2.2.5-release/agent
 ```
 
-
-
 ### 3. 升级说明
-
 
 | 说明             |                                                    |
 | -------------- | -------------------------------------------------- |
@@ -294,13 +263,9 @@ cd /opt/jf-monitor/agent
 | 回退旧版本          | 解压旧版 tar.gz 后同样使用 `update-server.sh --from <旧版目录>` |
 | 查看版本           | 安装目录执行 `./version.sh`                              |
 
-
 ---
 
-
-
 ## 五、常用配置
-
 
 | 项                   | 配置方式                                                            | 默认         |
 | ------------------- | --------------------------------------------------------------- | ---------- |
@@ -310,12 +275,9 @@ cd /opt/jf-monitor/agent
 | 演示数据                | 设置页关闭，或 `collectors.demo.enabled: false`                        | 默认关闭       |
 | 远程镜像                | `.env` 或环境变量 `JF_MONITOR_IMAGE`                                 | 使用包内离线镜像   |
 
-
 `.env` 为**可选项**，仅在有端口、镜像等高级需求时使用（参考 `.env.example`）。
 
 ---
-
-
 
 ## 六、Prometheus 指标接入（Beta）
 
@@ -323,10 +285,7 @@ cd /opt/jf-monitor/agent
 
 ---
 
-
-
 ## 七、故障排查
-
 
 | 现象                                            | 处理                                                                                                                                                                                                                |
 | --------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -339,10 +298,7 @@ cd /opt/jf-monitor/agent
 | 升级后异常                                         | `./version.sh` 核对版本；确认已 `docker load` 新镜像后 `./update-server.sh --from <新版本解压路径>`；必要时 `./stop.sh && ./start.sh`                                                                                                    |
 | Xray 页报 `Unexpected token '<'` / HTML 非 JSON  | 多为 **Dashboard 已更新但容器仍是旧镜像**（同 tag 未重新 load）。用包内 `images/jf-monitor-<VERSION>-linux-*.tar.gz` 再执行 `./update-server.sh --from <解压目录>`，或 `curl -sI http://localhost:8080/api/xray/overview` 应返回 JSON 而非 `text/html` |
 
-
 ---
-
-
 
 ## 目录说明（解压后）
 
@@ -364,10 +320,7 @@ cd /opt/jf-monitor/agent
   README.md                # 本文档
 ```
 
-
-
 ### 数据持久化说明
-
 
 | 内容        | 安装目录路径                                        | 说明                     |
 | --------- | --------------------------------------------- | ---------------------- |
@@ -376,10 +329,7 @@ cd /opt/jf-monitor/agent
 | Server 镜像 | `./images/jf-monitor-<版本>-linux-amd64.tar.gz` | x86_64 离线镜像            |
 |           | `./images/jf-monitor-<版本>-linux-arm64.tar.gz` | arm64 离线镜像             |
 
-
 ---
-
-
 
 ## License
 

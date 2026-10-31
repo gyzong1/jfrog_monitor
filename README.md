@@ -1,11 +1,14 @@
-# JF Monitor 部署指南
+# JF Monitor
 
-JF Monitor 安装与升级说明。支持 **linux/amd64** 与 **linux/arm64**。
+JFrog Artifactory 性能与安全监控（Server Docker + 可选 Node Agent）。
+
+本文说明**安装、配置与升级**。下文命令均在**安装目录**（解压后的包根目录）执行。  
+支持 **linux/amd64** 与 **linux/arm64**。
 
 安装包通常为：
 
 ```text
-jf-monitor-1.0.0-release.tar.gz    # 完整安装包（含 Server 镜像、Agent 二进制、脚本与配置）
+jf-monitor-2.2.5-release.tar.gz    # 含 Server 镜像、Agent 二进制、脚本与配置
 ```
 
 ---
@@ -15,7 +18,7 @@ jf-monitor-1.0.0-release.tar.gz    # 完整安装包（含 Server 镜像、Agent
 ```text
 ┌─────────────────────────────┐     抓取 metrics / REST
 │  JF Monitor Server (Docker) │ ◄──────────────────── Artifactory 节点
-│  :8080  浏览器打开即用        │
+│  :8080  Web UI               │
 └─────────────────────────────┘
          ▲
          │ 可选：每节点部署 Agent (:9105)
@@ -45,18 +48,18 @@ jf-monitor-1.0.0-release.tar.gz    # 完整安装包（含 Server 镜像、Agent
 ### 1. 解压安装包
 
 ```bash
-# 解压后目录 jf-monitor-1.0.0-release/
-tar xzf jf-monitor-1.0.0-release.tar.gz
-mv jf-monitor-1.0.0-release jf-monitor
+# 解压后目录 jf-monitor-2.2.5-release/
+tar xzf jf-monitor-2.2.5-release.tar.gz
+mv jf-monitor-2.2.5-release jf-monitor
 cd jf-monitor
 
 # 或安装到指定路径
-# tar xzf jf-monitor-1.0.0-release.tar.gz -C /opt
-# mv /opt/jf-monitor-1.0.0-release /opt/jf-monitor
+# tar xzf jf-monitor-2.2.5-release.tar.gz -C /opt
+# mv /opt/jf-monitor-2.2.5-release /opt/jf-monitor
 # cd /opt/jf-monitor
 ```
 
-> 将 `1.0.0` 替换为实际版本号。查看包内版本：`cat VERSION`
+> 将 `2.2.5` 替换为实际版本号。查看包内版本：`cat VERSION`
 
 
 
@@ -73,7 +76,7 @@ cd jf-monitor
 **在线环境（从 Registry 拉镜像）：**
 
 ```bash
-export JF_MONITOR_IMAGE=your-registry/jf-monitor:1.0.0
+export JF_MONITOR_IMAGE=your-registry/jf-monitor:2.2.5
 docker compose pull
 ./start.sh
 ```
@@ -249,25 +252,25 @@ curl -s http://127.0.0.1:9105/metrics | head
 
 ## 四、版本升级
 
-下载新版本包（如 `jf-monitor-1.2.0-release.tar.gz`）后，在**现有安装目录**执行升级。  
+下载新版本包（如 `jf-monitor-2.2.5-release.tar.gz`）后，在**现有安装目录**执行升级。  
 **保留的内容：** `config/`（节点、Dashboard）、`data/`（历史指标）、`agent.yaml`  
 **更新的内容：** Server 镜像、Agent 二进制、可选的新版默认 Dashboard
 
 ### 1. 升级 Server
 
 ```bash
-# 解压新版本（解压后如 jf-monitor-1.2.0-release/）
-tar xzf jf-monitor-1.2.0-release.tar.gz -C /tmp
+# 解压新版本（解压后如 jf-monitor-2.2.5-release/）
+tar xzf jf-monitor-2.2.5-release.tar.gz -C /tmp
 
 # 在现有安装目录执行升级
 cd /opt/jf-monitor                  # 现有安装目录 
-./update-server.sh --from /tmp/jf-monitor-1.2.0-release
+./update-server.sh --from /tmp/jf-monitor-2.2.5-release
 ```
 
 **在线 Registry 升级：**
 
 ```bash
-export JF_MONITOR_IMAGE=your-registry/jf-monitor:1.2.0
+export JF_MONITOR_IMAGE=your-registry/jf-monitor:2.2.5
 ./update-server.sh
 ```
 
@@ -277,7 +280,7 @@ export JF_MONITOR_IMAGE=your-registry/jf-monitor:1.2.0
 
 ```bash
 cd /opt/jf-monitor/agent
-./update.sh --from /tmp/jf-monitor-1.2.0-release/agent
+./update.sh --from /tmp/jf-monitor-2.2.5-release/agent
 ```
 
 

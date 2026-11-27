@@ -1,0 +1,29 @@
+# 部署在 Artifactory 节点上的 Agent 配置
+listen: "0.0.0.0"
+port: 9105
+scrape_interval: 5
+
+tcp:
+  enabled: true
+  ports: ["8081", "8082"]
+
+requests:
+  enabled: true
+  log_file: /var/opt/jfrog/artifactory/log/artifactory-request.log
+  window_seconds: 15
+
+access_log:
+  enabled: true
+  log_file: /var/opt/jfrog/artifactory/log/artifactory-access.log
+  window_seconds: 60
+  cache_repo_suffix: "-cache"
+  miss_repo_regex: "(^|.*-)remote($|-)"
+
+s3:
+  enabled: true
+  log_file: /var/opt/jfrog/artifactory/log/artifactory-connectionpool.log
+
+system:
+  enabled: true
+  disk_path: /
+  network_interfaces: []

@@ -1,0 +1,12 @@
+services:
+  jf-monitor:
+    image: ${JF_MONITOR_IMAGE:-jf-monitor:2.2.12}
+    container_name: jf-monitor
+    ports:
+      - "${JF_MONITOR_PORT:-18080}:18080"
+    environment:
+      DEMO_MODE: "${DEMO_MODE:-true}"
+    volumes:
+      - ./config:/app/config
+      - ./data:/app/data
+    restart: unless-stopped
